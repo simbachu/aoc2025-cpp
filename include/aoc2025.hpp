@@ -11,12 +11,10 @@
 #include <optional>
 
 namespace aoc2025 {
-    // Parts take string input directly (works for both file and test input)
     struct Day {
         int day_number;
         std::string title;
         
-        // Part functions take string input and return printable result
         using PartFunction = std::ostream&(*)(std::ostream&, const std::string&);
         PartFunction part1;
         std::optional<PartFunction> part2; // Optional for unlocked parts

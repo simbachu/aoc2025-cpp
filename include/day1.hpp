@@ -9,10 +9,6 @@
 #include "aoc2025.hpp"
 
 namespace Day1 {
-
-    std::ostream& solve_part1(std::ostream& os, const std::string& input);
-    std::ostream& solve_part2(std::ostream& os, const std::string& input);
-
     enum class Direction {
         kLeft = -1,
         kRight = 1

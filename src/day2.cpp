@@ -3,9 +3,9 @@
 namespace Day2 {
     const aoc2025::Day Day2 {
         2,
-        "Day 2",
+        "Gift Shop",
         &solve_part1,
-        solve_part2  // Part 2 is unlocked
+        solve_part2
     };
 }
 

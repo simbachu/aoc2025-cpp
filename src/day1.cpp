@@ -5,7 +5,7 @@ namespace Day1 {
         1,
         "Secret Entrance",
         &solve_part1,
-        solve_part2  // Part 2 is unlocked
+        solve_part2
     };
 }
 
