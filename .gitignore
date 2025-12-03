@@ -1,0 +1,15 @@
+# Advent of Code data files
+inputs/*.txt
+
+# Build artifacts
+build/
+
+# Compiled object files
+*.o
+
+# Executable files
+*.exe
+*.out
+
+# Ide specific files
+.vscode/
