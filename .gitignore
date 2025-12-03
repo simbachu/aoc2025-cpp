@@ -1,5 +1,5 @@
 # Advent of Code data files
-inputs/*.txt
+day*/data.txt
 
 # Build artifacts
 build/

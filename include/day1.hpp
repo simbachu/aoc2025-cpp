@@ -1,26 +1,17 @@
 #pragma once
-#include <fstream>
 #include <ostream>
+#include <sstream>
 #include <functional>
 #include <algorithm>
+#include <vector>
+#include <string>
 
 #include "aoc2025.hpp"
 
 namespace Day1 {
-    const char* kInputFile("inputs/day1.txt");
 
-    // Forward declarations
-    std::ostream& part_1(std::ostream& os);
-    std::ostream& part_2(std::ostream& os);
-
-    const aoc2025::Day Day1 {
-        1,
-        "Secret Entrance",
-        {
-            &part_1,
-            &part_2
-        }
-    };
+    std::ostream& solve_part1(std::ostream& os, const std::string& input);
+    std::ostream& solve_part2(std::ostream& os, const std::string& input);
 
     enum class Direction {
         kLeft = -1,
@@ -54,28 +45,37 @@ namespace Day1 {
         std::function<void()> on_pass_min;
 
         void rotate(const DialRotation& rotation) {
-            const int new_position = static_cast<int>(position) + static_cast<int>(rotation.direction) * rotation.steps;
+            int new_position = static_cast<int>(position) + static_cast<int>(rotation.direction) * rotation.steps;
             
+            // Wrap around: 0-99 range
+            const int range_size = max - min + 1;
+            while (new_position < min) {
+                new_position += range_size;
+            }
+            while (new_position > max) {
+                new_position -= range_size;
+            }
+            
+            // Count passes through min (0) during rotation
             if (on_pass_min) {
-                switch (rotation.direction) {
-                    case Direction::kLeft:
-                        for (int pos = position - 1; pos >= new_position && pos >= min; --pos) {
-                            if (pos == min) {
-                                on_pass_min();
-                            }
+                const int start_value = static_cast<int>(position);
+                for (int i = 1; i <= rotation.steps; ++i) {
+                    int pos;
+                    if (rotation.direction == Direction::kLeft) {
+                        pos = (start_value - i) % range_size;
+                        if (pos < 0) {
+                            pos += range_size;
                         }
-                        break;
-                    case Direction::kRight:
-                        for (int pos = position + 1; pos <= new_position && pos <= max; ++pos) {
-                            if (pos == min) {
-                                on_pass_min();
-                            }
-                        }
-                        break;
+                    } else {
+                        pos = (start_value + i) % range_size;
+                    }
+                    if (pos == min) {
+                        on_pass_min();
+                    }
                 }
             }
             
-            position = static_cast<std::uint8_t>(std::clamp(new_position, static_cast<int>(min), static_cast<int>(max)));
+            position = static_cast<std::uint8_t>(new_position);
             
             if (on_end_at_min && position == min) {
                 on_end_at_min();
@@ -93,10 +93,10 @@ namespace Day1 {
         std::vector<DialRotation> rotations;
 
     public:
-        explicit DialRotations(const char* filename) {
-            std::ifstream input_file(filename);
+        explicit DialRotations(const std::string& input_string) {
+            std::istringstream input_stream(input_string);
             std::string line;
-            while (std::getline(input_file, line)) {
+            while (std::getline(input_stream, line)) {
                 if (!line.empty()) {
                     rotations.emplace_back(line);
                 }
@@ -144,25 +144,26 @@ namespace Day1 {
         int get_count() const { return count; }
     };
 
-    std::ostream& part_1(std::ostream& os) {
-        DialRotations rotations(kInputFile);
-        Dial dial;
-        DialCounter counter(dial, CountMode::kCountEnd);
-        
-        dial.rotate(rotations.get());
-        
-        os << counter.get_count();
-        return os;
+    namespace detail {
+        inline std::int64_t solve_common(const std::string& input, CountMode mode) {
+            DialRotations rotations(input);
+            Dial dial;
+            DialCounter counter(dial, mode);
+            
+            dial.rotate(rotations.get());
+            
+            return counter.get_count();
+        }
     }
 
-    std::ostream& part_2(std::ostream& os) {
-        DialRotations rotations(kInputFile);
-        Dial dial;
-        DialCounter counter(dial, CountMode::kCountPass);
-        
-        dial.rotate(rotations.get());
-        
-        os << counter.get_count();
-        return os;
+    inline std::ostream& solve_part1(std::ostream& os, const std::string& input) {        
+        return os << detail::solve_common(input, CountMode::kCountEnd);
     }
-};
+    
+    inline std::ostream& solve_part2(std::ostream& os, const std::string& input) {
+        return os << detail::solve_common(input, CountMode::kCountPass);
+    }
+
+    extern const aoc2025::Day Day1;
+
+}; // namespace Day1
